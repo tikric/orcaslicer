@@ -11,8 +11,9 @@ async function main() {
 
   // Step 1: Run vite build with the SPA config
   console.log('[spa-build] Step 1: Vite client build...');
+  const viteBin = path.join(root, 'node_modules', 'vite', 'bin', 'vite.js');
   execSync(
-    `npx vite build --config vite.config.spa.ts`,
+    `node "${viteBin}" build --config vite.config.spa.ts`,
     { stdio: 'inherit', cwd: root, env: { ...process.env } }
   );
 
