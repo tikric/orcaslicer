@@ -1,0 +1,6 @@
+{
+  "name": "OrcaSlicer Pro Course and Calibration Simulator",
+  "description": "An interactive learning course and 3D printing calibration simulator for OrcaSlicer Pro.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
