@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "node resolve-assets.js && vite build",
+    "build": "node resolve-assets.js && vite build && nitro build",
     "start": "node .output/server/index.mjs",
     "lint": "tsc --noEmit"
   },
@@ -43,6 +43,7 @@
     "@types/react-dom": "^19.0.1",
     "autoprefixer": "^10.4.21",
     "esbuild": "^0.25.0",
+    "nitro": "^3.0.260610-beta",
     "tailwindcss": "^4.1.14",
     "tsx": "^4.21.0",
     "typescript": "~5.8.2",
