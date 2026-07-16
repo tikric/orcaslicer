@@ -14,6 +14,13 @@ export default {
     emptyOutDir: true,
     rollupOptions: {
       input: resolve(__dirname, "spa-index.html"),
+      output: {
+        manualChunks: {
+          // Vendors estáveis em chunks separados: melhor cache e paralelismo.
+          router: ["@tanstack/react-router", "@tanstack/react-query"],
+          supabase: ["@supabase/supabase-js"],
+        },
+      },
     },
   },
   resolve: {

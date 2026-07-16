@@ -1,5 +1,26 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { InfographicView } from "../components/InfographicView";
+import { lazy, Suspense } from "react";
+
+// Área do aluno carregada sob demanda — Supabase, jsPDF e o conteúdo
+// completo do curso ficam fora do bundle inicial da página de vendas.
+const InfographicView = lazy(() =>
+  import("../components/InfographicView").then((m) => ({ default: m.InfographicView })),
+);
+
+function CursoFallback() {
+  return (
+    <div
+      className="min-h-screen flex flex-col items-center justify-center gap-3"
+      style={{ background: "#0a0c10" }}
+    >
+      <div
+        className="w-8 h-8 rounded-full border-2 animate-spin"
+        style={{ borderColor: "#00C89633", borderTopColor: "#00C896" }}
+      />
+      <div className="text-gray-500 text-sm">Carregando área do aluno…</div>
+    </div>
+  );
+}
 
 export const Route = createFileRoute("/curso")({
   head: () => ({
@@ -18,5 +39,9 @@ export const Route = createFileRoute("/curso")({
       { property: "og:type", content: "product" },
     ],
   }),
-  component: InfographicView,
+  component: () => (
+    <Suspense fallback={<CursoFallback />}>
+      <InfographicView />
+    </Suspense>
+  ),
 });

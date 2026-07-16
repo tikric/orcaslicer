@@ -20,7 +20,8 @@ import {
 } from "lucide-react";
 import { courseTabs } from "@/data/courseData";
 import heroParts from "@/assets/hero-parts.jpg";
-import { InfoCard } from "@/components/InfographicView";
+import { InfoCard } from "@/components/InfoCard";
+import { Reveal } from "@/components/Reveal";
 
 /** Link do checkout Kiwify — troque pela sua URL de venda. */
 const KIWIFY_URL = "https://pay.kiwify.com.br/8Kj7UMH";
@@ -326,6 +327,30 @@ export function SalesPage() {
   }));
   const totalParams = modules.reduce((a, m) => a + m.count, 0);
 
+  // Header fixo: blur ao rolar + barra de progresso + CTA mobile.
+  const [scrolled, setScrolled] = useState(false);
+  const [showMobileCta, setShowMobileCta] = useState(false);
+  const [progress, setProgress] = useState(0);
+  useEffect(() => {
+    let raf = 0;
+    const onScroll = () => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => {
+        const y = window.scrollY;
+        setScrolled(y > 24);
+        setShowMobileCta(y > 720);
+        const max = document.documentElement.scrollHeight - window.innerHeight;
+        setProgress(max > 0 ? Math.min(1, y / max) : 0);
+      });
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      cancelAnimationFrame(raf);
+    };
+  }, []);
+
   return (
     <div
       className="min-h-screen text-white overflow-x-hidden"
@@ -334,30 +359,92 @@ export function SalesPage() {
           "radial-gradient(1200px 600px at 15% -10%, rgba(0,200,150,0.12), transparent 60%), radial-gradient(900px 500px at 90% 10%, rgba(96,165,250,0.08), transparent 60%), #0a0c10",
       }}
     >
-      {/* NAV */}
-      <nav className="max-w-6xl mx-auto flex items-center justify-between px-4 sm:px-6 py-6">
-        <div className="flex items-center gap-2">
-          <div
-            className="w-9 h-9 rounded-xl flex items-center justify-center"
-            style={{ background: "#00C89622", border: "1px solid #00C89655" }}
-          >
-            <Sparkles size={16} style={{ color: "#00C896" }} />
+      {/* HEADER FIXO */}
+      <header
+        className="sticky top-0 z-50 transition-all duration-300"
+        style={{
+          background: scrolled ? "rgba(10,12,16,0.82)" : "transparent",
+          backdropFilter: scrolled ? "blur(14px)" : "none",
+          WebkitBackdropFilter: scrolled ? "blur(14px)" : "none",
+          borderBottom: scrolled ? "1px solid #1f2430" : "1px solid transparent",
+        }}
+      >
+        {/* Barra de progresso de leitura */}
+        <div
+          className="absolute top-0 left-0 h-[2px] transition-[width] duration-150 ease-out"
+          style={{
+            width: `${progress * 100}%`,
+            background: "linear-gradient(90deg, #00C896, #00e2aa)",
+            boxShadow: "0 0 8px rgba(0,200,150,0.6)",
+          }}
+        />
+        <nav className="max-w-6xl mx-auto flex items-center justify-between px-4 sm:px-6 py-4">
+          <a href="#topo" className="flex items-center gap-2">
+            <div
+              className="w-9 h-9 rounded-xl flex items-center justify-center"
+              style={{ background: "#00C89622", border: "1px solid #00C89655" }}
+            >
+              <Sparkles size={16} style={{ color: "#00C896" }} />
+            </div>
+            <span className="font-bold tracking-tight">
+              OrcaSlicer <span style={{ color: "#00C896" }}>Pro</span>
+            </span>
+          </a>
+          <div className="hidden md:flex items-center gap-6 text-[13px] font-semibold text-gray-400">
+            <a href="#preview" className="hover:text-white transition-colors">
+              Prévia
+            </a>
+            <a href="#modulos" className="hover:text-white transition-colors">
+              Módulos
+            </a>
+            <a href="#depoimentos" className="hover:text-white transition-colors">
+              Depoimentos
+            </a>
+            <a href="#faq" className="hover:text-white transition-colors">
+              FAQ
+            </a>
           </div>
-          <span className="font-bold tracking-tight">
-            OrcaSlicer <span style={{ color: "#00C896" }}>Pro</span>
-          </span>
-        </div>
-        <Link
-          to="/curso"
-          className="text-[13px] font-semibold px-4 py-2 rounded-lg transition-all hover:opacity-90"
-          style={{ background: "#ffffff08", color: "#e5e7eb", border: "1px solid #1f2430" }}
-        >
-          Já sou aluno · Entrar
-        </Link>
-      </nav>
+          <div className="flex items-center gap-2">
+            <a
+              href={KIWIFY_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hidden sm:inline-flex text-[13px] font-bold px-4 py-2 rounded-lg transition-all hover:translate-y-[-1px]"
+              style={{
+                background: "#00C896",
+                color: "#0a0c10",
+                boxShadow: "0 8px 20px -8px rgba(0,200,150,0.55)",
+              }}
+            >
+              R$ 39,90 · Começar
+            </a>
+            <Link
+              to="/curso"
+              className="text-[13px] font-semibold px-4 py-2 rounded-lg transition-all hover:opacity-90"
+              style={{ background: "#ffffff08", color: "#e5e7eb", border: "1px solid #1f2430" }}
+            >
+              Já sou aluno
+            </Link>
+          </div>
+        </nav>
+      </header>
 
       {/* HERO */}
-      <section className="max-w-6xl mx-auto px-4 sm:px-6 pt-10 pb-20 grid lg:grid-cols-[1.05fr_1fr] gap-8 lg:gap-12 items-center">
+      <section
+        id="topo"
+        className="relative max-w-6xl mx-auto px-4 sm:px-6 pt-10 pb-20 grid lg:grid-cols-[1.05fr_1fr] gap-8 lg:gap-12 items-center"
+      >
+        {/* Grade sutil de fundo */}
+        <div
+          className="absolute inset-0 -z-10 pointer-events-none opacity-[0.35]"
+          style={{
+            backgroundImage:
+              "linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px)",
+            backgroundSize: "44px 44px",
+            maskImage: "radial-gradient(70% 60% at 40% 30%, black, transparent)",
+            WebkitMaskImage: "radial-gradient(70% 60% at 40% 30%, black, transparent)",
+          }}
+        />
         <div>
           <div
             className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full mb-6"
@@ -435,6 +522,8 @@ export function SalesPage() {
               alt="Peças 3D impressas com qualidade profissional usando OrcaSlicer"
               width={1600}
               height={1200}
+              fetchPriority="high"
+              decoding="async"
               className="w-full h-auto block transition-transform duration-[1.2s] ease-out group-hover:scale-[1.03]"
               referrerPolicy="no-referrer"
             />
@@ -527,10 +616,11 @@ export function SalesPage() {
 
       {/* NÚMEROS */}
       <section className="max-w-6xl mx-auto px-4 sm:px-6 pb-16">
-        <div
-          className="grid grid-cols-2 md:grid-cols-4 rounded-2xl overflow-hidden"
-          style={{ background: "#10131a", border: "1px solid #1f2430" }}
-        >
+        <Reveal>
+          <div
+            className="grid grid-cols-2 md:grid-cols-4 rounded-2xl overflow-hidden"
+            style={{ background: "#10131a", border: "1px solid #1f2430" }}
+          >
           {[
             { k: `${totalParams}+`, v: "Parâmetros documentados" },
             { k: `${courseTabs.length}`, v: "Módulos completos" },
@@ -548,12 +638,13 @@ export function SalesPage() {
               <div className="text-[12px] text-gray-400 mt-1">{s.v}</div>
             </div>
           ))}
-        </div>
+          </div>
+        </Reveal>
       </section>
 
       {/* MÓDULOS */}
-      <section className="max-w-6xl mx-auto px-4 sm:px-6 py-16">
-        <div className="text-center mb-12">
+      <section id="modulos" className="max-w-6xl mx-auto px-4 sm:px-6 py-16">
+        <Reveal className="text-center mb-12">
           <div
             className="inline-block text-[11px] font-bold uppercase tracking-widest px-3 py-1 rounded-full mb-4"
             style={{ background: "#ffffff08", color: "#00C896", border: "1px solid #1f2430" }}
@@ -567,13 +658,13 @@ export function SalesPage() {
             Nada de "clica aqui e vê o que dá". Você aprende o que cada valor faz na peça — e quando
             muda.
           </p>
-        </div>
+        </Reveal>
 
         <div className="grid md:grid-cols-3 gap-4">
           {modules.map((m, i) => (
+            <Reveal key={i} delay={i * 70}>
             <div
-              key={i}
-              className="p-6 rounded-2xl group transition-all hover:translate-y-[-2px]"
+              className="p-6 rounded-2xl group transition-all hover:translate-y-[-2px] h-full"
               style={{
                 background: "linear-gradient(180deg, #10131a 0%, #0c0f14 100%)",
                 border: "1px solid #1f2430",
@@ -599,6 +690,7 @@ export function SalesPage() {
                 cada parâmetro.
               </p>
             </div>
+            </Reveal>
           ))}
         </div>
       </section>
@@ -628,9 +720,9 @@ export function SalesPage() {
               text: "Teste o efeito dos parâmetros visualmente antes de gastar filamento na impressora.",
             },
           ].map((b, i) => (
+            <Reveal key={i} delay={i * 70}>
             <div
-              key={i}
-              className="p-6 rounded-2xl flex gap-4"
+              className="p-6 rounded-2xl flex gap-4 h-full"
               style={{ background: "#10131a", border: "1px solid #1f2430" }}
             >
               <div
@@ -644,12 +736,14 @@ export function SalesPage() {
                 <p className="text-[13.5px] text-gray-400 mt-1.5 leading-relaxed">{b.text}</p>
               </div>
             </div>
+            </Reveal>
           ))}
         </div>
       </section>
 
       {/* PARA QUEM É */}
       <section className="max-w-6xl mx-auto px-4 sm:px-6 py-16">
+        <Reveal>
         <div
           className="rounded-3xl p-6 sm:p-10 md:p-14"
           style={{
@@ -678,10 +772,12 @@ export function SalesPage() {
             ))}
           </div>
         </div>
+        </Reveal>
       </section>
 
       {/* GARANTIA */}
       <section className="max-w-4xl mx-auto px-4 sm:px-6 py-16">
+        <Reveal>
         <div
           className="rounded-3xl p-6 sm:p-10 text-center relative overflow-hidden"
           style={{
@@ -721,13 +817,16 @@ export function SalesPage() {
             Comprar com garantia — R$ 39,90
           </a>
         </div>
+        </Reveal>
       </section>
 
       {/* DEPOIMENTOS */}
-      <section className="max-w-6xl mx-auto px-4 sm:px-6 py-16">
-        <h2 className="text-2xl sm:text-3xl md:text-4xl font-black tracking-[-0.02em] text-center mb-12">
-          Quem fez, imprime melhor.
-        </h2>
+      <section id="depoimentos" className="max-w-6xl mx-auto px-4 sm:px-6 py-16">
+        <Reveal>
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-black tracking-[-0.02em] text-center mb-12">
+            Quem fez, imprime melhor.
+          </h2>
+        </Reveal>
         <div className="grid md:grid-cols-3 gap-4">
           {[
             {
@@ -746,9 +845,9 @@ export function SalesPage() {
               t: "Padronizei os presets da loja inteira. Meus clientes recebem peças consistentes agora.",
             },
           ].map((d, i) => (
+            <Reveal key={i} delay={i * 90}>
             <div
-              key={i}
-              className="p-6 rounded-2xl"
+              className="p-6 rounded-2xl h-full"
               style={{ background: "#10131a", border: "1px solid #1f2430" }}
             >
               <div className="flex gap-0.5 mb-3">
@@ -762,12 +861,14 @@ export function SalesPage() {
                 <div className="text-gray-500">{d.r}</div>
               </div>
             </div>
+            </Reveal>
           ))}
         </div>
       </section>
 
       {/* PREÇO */}
-      <section className="max-w-4xl mx-auto px-4 sm:px-6 py-16">
+      <section id="preco" className="max-w-4xl mx-auto px-4 sm:px-6 py-16">
+        <Reveal>
         <div
           className="rounded-3xl p-6 sm:p-10 md:p-14 text-center relative"
           style={{
@@ -824,13 +925,16 @@ export function SalesPage() {
             <Clock size={12} /> Acesso imediato · <Lock size={12} /> Checkout seguro via Kiwify
           </div>
         </div>
+        </Reveal>
       </section>
 
       {/* FAQ */}
-      <section className="max-w-3xl mx-auto px-4 sm:px-6 py-16">
-        <h2 className="text-2xl sm:text-3xl font-black tracking-[-0.02em] text-center mb-10">
-          Perguntas frequentes
-        </h2>
+      <section id="faq" className="max-w-3xl mx-auto px-4 sm:px-6 py-16">
+        <Reveal>
+          <h2 className="text-2xl sm:text-3xl font-black tracking-[-0.02em] text-center mb-10">
+            Perguntas frequentes
+          </h2>
+        </Reveal>
         <div className="space-y-3">
           {[
             {
@@ -854,8 +958,8 @@ export function SalesPage() {
               a: "Sim, para sempre. Toda vez que o OrcaSlicer lança um recurso novo, o curso é atualizado — você já tem acesso.",
             },
           ].map((f, i) => (
+            <Reveal key={i} delay={i * 60} y={10}>
             <details
-              key={i}
               className="group rounded-2xl px-5 py-4 cursor-pointer"
               style={{ background: "#10131a", border: "1px solid #1f2430" }}
             >
@@ -868,9 +972,49 @@ export function SalesPage() {
               </summary>
               <p className="text-gray-400 text-[13.5px] leading-relaxed mt-3">{f.a}</p>
             </details>
+            </Reveal>
           ))}
         </div>
       </section>
+
+      {/* CTA FIXO MOBILE */}
+      <div
+        className="fixed bottom-0 inset-x-0 z-40 sm:hidden transition-transform duration-300 ease-out"
+        style={{ transform: showMobileCta ? "translateY(0)" : "translateY(110%)" }}
+      >
+        <div
+          className="flex items-center justify-between gap-3 px-4 py-3"
+          style={{
+            background: "rgba(10,12,16,0.92)",
+            backdropFilter: "blur(14px)",
+            WebkitBackdropFilter: "blur(14px)",
+            borderTop: "1px solid #1f2430",
+          }}
+        >
+          <div className="leading-tight">
+            <div className="text-[11px] text-gray-500 line-through">R$ 197</div>
+            <div className="text-lg font-black tracking-tight">
+              R$ 39,90 <span className="text-[10px] font-bold text-[#00C896] uppercase">único</span>
+            </div>
+          </div>
+          <a
+            href={KIWIFY_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="h-11 px-5 rounded-xl font-bold text-sm flex items-center gap-2"
+            style={{
+              background: "#00C896",
+              color: "#0a0c10",
+              boxShadow: "0 10px 24px -8px rgba(0,200,150,0.55)",
+            }}
+          >
+            <Rocket size={15} />
+            Quero acessar
+          </a>
+        </div>
+      </div>
+      {/* Espaçador para o CTA fixo não cobrir o rodapé no mobile */}
+      <div className="h-16 sm:hidden" />
 
       {/* FOOTER */}
       <footer

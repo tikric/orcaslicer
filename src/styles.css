@@ -14,6 +14,13 @@
 ::-webkit-scrollbar-thumb { background: #2a2e3a; border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: #3a3f4b; }
 
+/* Rolagem suave para âncoras + compensação do header fixo. */
+html { scroll-behavior: smooth; }
+section[id] { scroll-margin-top: 92px; }
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
+
 /* Calibração: destaca em amarelo qualquer input numérico/slider alterado
    pelo usuário e adiciona um selo "ALTERADO" no container do campo. */
 .calibration-suite input[type="number"][data-changed="true"] {
