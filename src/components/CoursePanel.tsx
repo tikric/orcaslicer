@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   X,
   ChevronRight,
@@ -6,16 +7,77 @@ import {
   Activity,
   Zap,
   Settings,
+  ImageIcon,
 } from "lucide-react";
 import type { CourseItem } from "@/data/courseData";
+import { getGuideImageForItem } from "@/data/guideImages";
 
 interface CoursePanelProps {
   item: CourseItem | null;
   onClose: () => void;
 }
 
+function GuideImageWithFallback({
+  src,
+  fallbackSrc,
+  caption,
+  alt,
+}: {
+  src: string;
+  fallbackSrc?: string;
+  caption?: string;
+  alt: string;
+}) {
+  const [imgSrc, setImgSrc] = useState(src);
+  const [failed, setFailed] = useState(false);
+  const [triedFallback, setTriedFallback] = useState(false);
+
+  return (
+    <div className="relative w-full overflow-hidden rounded-xl" style={{ background: "#0c0f14" }}>
+      {!failed ? (
+        <img
+          src={imgSrc}
+          alt={alt}
+          className="w-full h-auto block"
+          style={{ maxHeight: 360, objectFit: "cover" }}
+          onError={() => {
+            if (!triedFallback && fallbackSrc && fallbackSrc !== imgSrc) {
+              setImgSrc(fallbackSrc);
+              setTriedFallback(true);
+            } else {
+              setFailed(true);
+            }
+          }}
+        />
+      ) : (
+        <div
+          className="w-full flex flex-col items-center justify-center gap-3"
+          style={{ height: 200, background: "linear-gradient(135deg, #0c0f14, #14181f)" }}
+        >
+          <ImageIcon size={40} style={{ color: "#2a2e3a" }} />
+          <span className="text-xs text-gray-600 uppercase tracking-wider">
+            Imagem indisponível
+          </span>
+        </div>
+      )}
+      {caption && (
+        <div
+          className="absolute bottom-0 left-0 right-0 px-4 py-2.5"
+          style={{
+            background: "linear-gradient(transparent, rgba(0,0,0,0.8))",
+          }}
+        >
+          <p className="text-[12px] text-gray-300 leading-snug">{caption}</p>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function CoursePanel({ item, onClose }: CoursePanelProps) {
   if (!item) return null;
+
+  const guide = getGuideImageForItem(item.id, item.label, item.value);
 
   return (
     <div
@@ -66,7 +128,21 @@ export function CoursePanel({ item, onClose }: CoursePanelProps) {
             </button>
           </header>
 
-          {/* Guia visual + explicações compactas lado a lado */}
+          {/* Guia visual — imagem do parâmetro */}
+          <div
+            className="rounded-2xl overflow-hidden shadow-lg"
+            style={{ background: "#1a1d24", border: "1px solid #2a2e3a" }}
+          >
+            <div className="p-1">
+              <GuideImageWithFallback
+                src={guide.src}
+                fallbackSrc={guide.fallbackSrc}
+                caption={guide.caption}
+                alt={item.label}
+              />
+            </div>
+          </div>
+
           {/* Explicações concisas de largura total */}
           <div
             className="rounded-2xl p-5 shadow-lg"
@@ -212,7 +288,6 @@ function MiniInfo({
   color: string;
   text: string;
 }) {
-  // Resumo automático: primeira frase (até ponto final) para manter conciso.
   const summary = (() => {
     if (!text) return "";
     const match = text.match(/^[^.!?]{0,180}[.!?]/);

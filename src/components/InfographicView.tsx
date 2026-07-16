@@ -1177,16 +1177,44 @@ export function InfoCard({
         animation: `fadeUp 0.5s ease ${Math.min(index * 40, 400)}ms both`,
       }}
     >
-      {/* Compact header without image */}
+      {/* Image header with guide image */}
       <button
         onClick={onOpen}
-        className="relative h-14 overflow-hidden w-full block text-left cursor-pointer"
-        style={{
-          background: "linear-gradient(135deg, rgba(0,200,150,0.12), rgba(96,165,250,0.10))",
-          borderBottom: "1px solid #1f2430"
-        }}
+        className="relative overflow-hidden w-full block text-left cursor-pointer"
+        style={{ borderBottom: "1px solid #1f2430" }}
       >
-        <div className="absolute top-3.5 left-4 flex items-center gap-1.5">
+        <img
+          src={guide.src}
+          alt={item.label}
+          className="w-full h-28 object-cover transition-transform duration-500 group-hover:scale-105"
+          onError={(e) => {
+            const img = e.currentTarget;
+            if (guide.fallbackSrc && guide.fallbackSrc !== img.src) {
+              img.src = guide.fallbackSrc;
+            } else {
+              img.style.display = "none";
+              const fallback = img.nextElementSibling as HTMLElement;
+              if (fallback) fallback.style.display = "flex";
+            }
+          }}
+        />
+        <div
+          className="w-full h-28 items-center justify-center"
+          style={{
+            display: "none",
+            background: "linear-gradient(135deg, rgba(0,200,150,0.12), rgba(96,165,250,0.10))",
+          }}
+        >
+          <span className="text-gray-600 text-xs uppercase tracking-wider">Guia Visual</span>
+        </div>
+        {/* Gradient overlay */}
+        <div
+          className="absolute inset-0"
+          style={{
+            background: "linear-gradient(180deg, transparent 40%, rgba(10,12,16,0.85) 100%)",
+          }}
+        />
+        <div className="absolute bottom-2.5 left-4 flex items-center gap-1.5">
           <span
             className="px-2.5 py-0.5 rounded-md text-[9.5px] font-bold uppercase tracking-wider"
             style={{
@@ -1200,7 +1228,7 @@ export function InfoCard({
           </span>
         </div>
         {selectedValue && (
-          <div className="absolute top-3.5 right-4">
+          <div className="absolute top-2.5 right-4">
             <span
               className="px-2.5 py-0.5 rounded-md text-[9.5px] font-bold uppercase tracking-wider flex items-center gap-1"
               style={{ background: accent, color: "#0a0c10" }}
