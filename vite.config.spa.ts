@@ -7,7 +7,7 @@ import { resolve } from "path";
 
 export default {
   root: resolve(__dirname),
-  base: "/orcaslicer/",
+  base: "/",
   plugins: [react(), tsConfigPaths(), tailwindcss()],
   build: {
     outDir: resolve(__dirname, "dist"),
