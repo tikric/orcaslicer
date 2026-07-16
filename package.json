@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "vite",
     "build": "node scripts/patch-nitro.cjs && node resolve-assets.js && vite build && nitro build",
+    "build:spa": "node build-spa.cjs",
     "start": "node .output/server/index.mjs",
     "lint": "tsc --noEmit",
     "postinstall": "node scripts/patch-nitro.cjs"
